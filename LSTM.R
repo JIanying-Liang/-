@@ -19,31 +19,37 @@ head(supervised)
 
 #training tesing set
 N = nrow(supervised)
-n = round(N *0.7, digits = 0)
+n = round(N *0.5, digits = 0)
 train = supervised[1:n, ]
-test  = supervised[(n+1):N,  ]
+vad = supervised[(1+n):(1+n+90),]
+test  = supervised[(n+91):N,  ]
 
 #normalized data
 # scale data
-scale_data = function(train, test, feature_range = c(0, 1)) {
+scale_data = function(train,vad, test, feature_range = c(0, 1)) {
   x = train
   fr_min = feature_range[1]
   fr_max = feature_range[2]
   std_train = ((x - min(x) ) / (max(x) - min(x)  ))
+  std_vad = ((vad - min(x) ) / (max(x) - min(x)  ))
   std_test  = ((test - min(x) ) / (max(x) - min(x)  ))
   
   scaled_train = std_train *(fr_max -fr_min) + fr_min
+  scaled_vad = std_vad *(fr_max -fr_min) + fr_min
   scaled_test = std_test *(fr_max -fr_min) + fr_min
   
-  return( list(scaled_train = as.vector(scaled_train), scaled_test = as.vector(scaled_test) ,scaler= c(min =min(x), max = max(x))) )
+  return( list(scaled_train = as.vector(scaled_train),scaled_vad = as.vector(scaled_vad), scaled_test = as.vector(scaled_test) ,scaler= c(min =min(x), max = max(x))) )
   
 }
 
 
-Scaled = scale_data(train, test, c(-1, 1))
+Scaled = scale_data(train,vad, test, c(-1, 1))
 
 y_train = Scaled$scaled_train[, 2]
 x_train = Scaled$scaled_train[, 1]
+
+y_vad = Scaled$scaled_vad[, 2]
+x_vad = Scaled$scaled_vad[, 1]
 
 y_test = Scaled$scaled_test[, 2]
 x_test = Scaled$scaled_test[, 1]
@@ -82,7 +88,7 @@ model%>%
   layer_dense(units = 1)
 model %>% compile(
   loss = 'mean_squared_error',
-  optimizer = optimizer_adam( lr= 0.02, decay = 1e-6 ),  
+  optimizer = optimizer_adam(),  
   metrics = c('accuracy')
 )
 summary(model)
