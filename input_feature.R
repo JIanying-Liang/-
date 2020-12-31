@@ -1,0 +1,12 @@
+openprice<-AAPL$Open
+closeprice<-AAPL$Close
+highprice<-AAPL$High
+lowprice<-AAPL$Low
+tradingvolumn<-AAPL$Volume
+library("zoo")
+ra5<-rollmean(AAPL$Close,k=5)
+ra10<-rollmean(AAPL$Close,k=10)
+library("TTR")
+macd_aapl<-MACD(AAPL$Close)
+cci_aapl<-CCI(AAPL$Close)
+atr_aapl<-ATR(AAPL$Close)
